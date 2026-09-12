@@ -1,0 +1,12 @@
+devices:
+  - name: cisco-router-1
+    device_type: cisco_ios
+    host: 192.168.1.1
+    username: admin
+    mock: true
+
+  - name: cisco-router-2
+    device_type: cisco_ios
+    host: 192.168.1.2
+    username: admin
+    mock: true
