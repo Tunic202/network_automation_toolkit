@@ -8,7 +8,7 @@ The project is being developed as a practical network-engineering automation por
 
 Core functionality is implemented and tested.
 
-**Current test suite: 19 tests passing**
+**Current test suite: 22 tests passing**
 
 The project currently supports simulated Cisco devices and is structured so that the same automation functions can later be used with real network devices through Netmiko.
 
@@ -16,6 +16,8 @@ The project currently supports simulated Cisco devices and is structured so that
 
 - YAML-based device inventory
 - Multiple-device selection
+- Configuration verification
+- Secure environment-based credentials
 - Cisco IOS device version retrieval
 - Interface status retrieval with `show ip interface brief`
 - Running configuration retrieval
@@ -28,6 +30,21 @@ The project currently supports simulated Cisco devices and is structured so that
 - Mock device connections for safe development and testing
 - Automated unit tests with Python `unittest`
 - Clear handling of connection timeouts and authentication failures
+
+
+## Configuration Verification
+
+Configuration changes follow a configure-and-verify workflow.
+
+For VLANs, the toolkit applies the configuration and then verifies the
+VLAN using `show vlan brief`.
+
+For interfaces, the toolkit applies `shutdown` or `no shutdown` and then
+verifies the resulting interface state using `show ip interface brief`.
+
+This helps identify configuration failures instead of assuming that a
+configuration command succeeded.
+
 
 ## Technologies
 
@@ -299,11 +316,12 @@ python -m unittest discover -s tests -v
 Current result:
 
 ```text
-Ran 19 tests
+Ran 22 tests
 OK
 ```
 
 The tests cover inventory loading, command retrieval, configuration changes, backups, and input validation.
+
 
 ## Testing Connection Failures
 
