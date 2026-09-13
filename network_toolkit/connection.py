@@ -28,11 +28,27 @@ def connect_to_device(device):
         return MockConnection(device.get("name"))
 
     device_config = device.copy()
+
     device_config.pop("name", None)
     device_config.pop("mock", None)
 
-    device_config["username"] = os.getenv("NETWORK_USERNAME")
-    device_config["password"] = os.getenv("NETWORK_PASSWORD")
+    username = os.getenv("NETWORK_USERNAME")
+    password = os.getenv("NETWORK_PASSWORD")
+    secret = os.getenv("NETWORK_SECRET")
+
+    if not username or not password:
+        logger.error(
+            "Network credentials are missing for device '%s'.",
+            device.get("name", "unknown"),
+        )
+        print("Network credentials are missing. Check your .env file.")
+        return None
+
+    device_config["username"] = username
+    device_config["password"] = password
+
+    if secret:
+        device_config["secret"] = secret
 
     try:
         logger.info(
@@ -42,6 +58,9 @@ def connect_to_device(device):
         )
 
         connection = ConnectHandler(**device_config)
+
+        if secret:
+            connection.enable()
 
         logger.info(
             "Successfully connected to device '%s'.",
@@ -63,3 +82,13 @@ def connect_to_device(device):
             device.get("name", "unknown"),
         )
         print("Connection timed out. Check the device IP and network connection.")
+
+    except Exception as error:
+        logger.exception(
+            "Unexpected connection error for device '%s': %s",
+            device.get("name", "unknown"),
+            error,
+        )
+        print(f"Connection error: {error}")
+
+    return None

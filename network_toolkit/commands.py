@@ -128,3 +128,97 @@ def configure_interface(device, interface, action):
     )
 
     return output
+
+
+def verify_vlan(device, vlan_id, vlan_name):
+    """Verify that a VLAN exists with the expected name."""
+
+    logger.info(
+        "Verifying VLAN %s (%s) on device '%s'.",
+        vlan_id,
+        vlan_name,
+        device["name"],
+    )
+
+    output = run_show_command(device, "show vlan brief")
+
+    if output is None:
+        logger.error(
+            "Unable to retrieve VLAN information from device '%s'.",
+            device["name"],
+        )
+        return False
+
+    expected = f"{vlan_id}    {vlan_name}"
+
+    verified = expected in output
+
+    if verified:
+        logger.info(
+            "VLAN %s (%s) verified successfully on device '%s'.",
+            vlan_id,
+            vlan_name,
+            device["name"],
+        )
+    else:
+        logger.error(
+            "VLAN %s (%s) verification failed on device '%s'.",
+            vlan_id,
+            vlan_name,
+            device["name"],
+        )
+
+    return verified
+
+
+def verify_interface(device, interface, action):
+    """Verify that an interface has the expected operational state."""
+
+    logger.info(
+        "Verifying interface '%s' with expected action '%s' on device '%s'.",
+        interface,
+        action,
+        device["name"],
+    )
+
+    output = run_show_command(device, "show ip interface brief")
+
+    if output is None:
+        logger.error(
+            "Unable to retrieve interface information from device '%s'.",
+            device["name"],
+        )
+        return False
+
+    for line in output.splitlines():
+        if interface not in line:
+            continue
+
+        if action == "shutdown":
+            verified = "administratively down" in line
+        else:
+            fields = line.split()
+            verified = len(fields) >= 2 and fields[-2:] == ["up", "up"]
+
+        if verified:
+            logger.info(
+                "Interface '%s' verified successfully on device '%s'.",
+                interface,
+                device["name"],
+            )
+        else:
+            logger.error(
+                "Interface '%s' verification failed on device '%s'.",
+                interface,
+                device["name"],
+            )
+
+        return verified
+
+    logger.error(
+        "Interface '%s' was not found on device '%s'.",
+        interface,
+        device["name"],
+    )
+
+    return False

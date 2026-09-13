@@ -5,3 +5,6 @@ __pycache__/
 .DS_Store
 backups/
 logs/
+
+# Environment variables and secrets
+.env

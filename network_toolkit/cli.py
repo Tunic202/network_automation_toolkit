@@ -5,6 +5,8 @@ from network_toolkit.commands import (
     get_running_config,
     create_vlan,
     configure_interface,
+    verify_vlan,
+    verify_interface,
 )
 from network_toolkit.backup import save_running_config
 from network_toolkit.validation import (
@@ -127,10 +129,18 @@ def main():
 
         output = create_vlan(device, vlan_id, vlan_name)
 
-        if output is not None:
-            print(output)
-        else:
+        if output is None:
             print("Unable to configure VLAN.")
+            return
+
+        print(output)
+
+        print("\nVerifying VLAN configuration...")
+
+        if verify_vlan(device, vlan_id, vlan_name):
+            print("VLAN verification successful.")
+        else:
+            print("VLAN verification failed.")
 
     elif choice == "5":
         device = select_device(devices)
@@ -147,12 +157,24 @@ def main():
 
         print(f"\nConfiguring interface on: {device['name']}")
 
-        output = configure_interface(device, interface, action)
+        output = configure_interface(
+            device,
+            interface,
+            action,
+        )
 
-        if output is not None:
-            print(output)
-        else:
+        if output is None:
             print("Unable to configure interface.")
+            return
+
+        print(output)
+
+        print("\nVerifying interface configuration...")
+
+        if verify_interface(device, interface, action):
+            print("Interface verification successful.")
+        else:
+            print("Interface verification failed.")
 
     elif choice == "6":
         print("Goodbye!")
